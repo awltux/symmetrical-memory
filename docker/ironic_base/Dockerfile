@@ -1,14 +1,18 @@
 FROM centos:7
 MAINTAINER Chris Hoge (chris@openstack.org)
-RUN yum install -y git epel-release python3 python-pip vim \
- && yum install -y python-devel openssl-devel python-pip mysql-devel libxml2-devel libxslt-devel postgresql-devel git git-review libffi-devel gettext ipmitool psmisc graphviz gcc libjpeg-turbo-devel \
- && pip install wheel python-ironicclient pymysql pip tox virtualenv --upgrade \
+RUN yum erase -y git python-requests python-ipaddress
+RUN yum install -y epel-release \
+ && rpm -U https://centos7.iuscommunity.org/ius-release.rpm
+RUN yum install -y git2u python3 python3-devel vim python-devel openssl-devel mysql-devel libxml2-devel libxslt-devel postgresql-devel libffi-devel gettext ipmitool psmisc graphviz gcc libjpeg-turbo-devel
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
+ && python get-pip.py \
+ && pip install --upgrade wheel python-ironicclient pymysql tox virtualenv
 RUN git clone https://github.com/openstack/ironic.git \
  && cd /ironic \
  && tox -edocs \
  && tox -egenconfig \
- && pip3 install -r requirements.txt  \
- && pip3 install . \
+ && pip install -r requirements.txt  \
+ && pip install . \
  && mkdir -p /etc/ironic \
  && cp -r /ironic/etc/ironic/* /etc/ironic/
 ADD /boot.ipxe /etc/ironic/boot.ipxe
